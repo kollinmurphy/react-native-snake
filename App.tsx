@@ -1,20 +1,21 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import Game from './components/Game';
+import { LayoutDataProvider } from './hooks/useLayoutData';
+import { SnakeProvider } from './hooks/useSnake';
+import Palette from './styles/palette';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <LayoutDataProvider>
+        <SnakeProvider>
+          <StatusBar style='light' backgroundColor={Palette.primaryBackground} />
+          <SafeAreaView style={{ flex: 1 }}>
+            <Game />
+          </SafeAreaView>
+        </SnakeProvider>
+      </LayoutDataProvider>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
