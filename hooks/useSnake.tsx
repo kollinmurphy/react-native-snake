@@ -1,7 +1,9 @@
-import React, { MutableRefObject, ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import React, { MutableRefObject, ReactNode, useCallback, useEffect, useRef } from "react";
 import Constants from "../logic/constants";
-import { calculateNewPosition, checkDotCollision, checkInternalCollision, chooseDotPosition } from "../logic/position";
+import { calculateNewPosition, checkDotCollision, chooseDotPosition } from "../logic/position";
 import { Direction, Snake } from "../logic/types";
+import useAudio from "./useAudio";
+import useHighScore from "./useHighScore";
 import useLayoutData from "./useLayoutData";
 
 type ContextValue = undefined | {
@@ -21,12 +23,15 @@ const SnakeContext = React.createContext<ContextValue>(undefined);
 
 export const SnakeProvider = ({ children }: { children: ReactNode }) => {
   const layout = useLayoutData()
+  const audio = useAudio()
+  const highScore = useHighScore()
   const snake = useRef<Snake>({
-    segments: [{ x: 0, y: 0, id: Math.random() }],
+    segments: [{ x: 1, y: 0, id: Math.random() }, { x: 0, y: 0, id: Math.random() }],
     direction: 'right',
     lost: false,
     dot: undefined,
     started: false,
+    points: 0,
   })
 
   const loop = useRef<ReturnType<typeof setInterval> | undefined>()
@@ -45,18 +50,22 @@ export const SnakeProvider = ({ children }: { children: ReactNode }) => {
           if (checkDotCollision(snake.current)) {
             snake.current.dot = undefined
             snake.current.segments.push(oldTail)
+            snake.current.points += 10
+            audio.playDotSound()
           }
           if (!snake.current.dot)
             snake.current.dot = chooseDotPosition(snake.current, l)
         }
       }
     } catch (err) {
-      console.error(err)
+      console.log(err)
       console.log('LOST')
+      audio.playLoseSound()
       snake.current = {
         ...snake.current,
         lost: true,
       }
+      highScore.update(snake.current.points)
     }
     for (const listener of listeners.current)
       listener?.()
@@ -84,12 +93,15 @@ export const SnakeProvider = ({ children }: { children: ReactNode }) => {
 
   const reset = useCallback(() => {
     snake.current = {
-      segments: [{ x: 0, y: 0, id: Math.random() }],
+      segments: [{ x: 1, y: 0, id: Math.random() }, { x: 0, y: 0, id: Math.random() }],
       direction: 'right',
       lost: false,
       dot: undefined,
       started: false,
+      points: 0,
     }
+    for (const listener of listeners.current)
+      listener?.()
   }, [])
 
   return (

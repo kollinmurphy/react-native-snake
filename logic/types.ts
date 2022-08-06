@@ -16,6 +16,7 @@ export interface Snake {
   lost: boolean;
   dot: Dot | undefined;
   started: boolean;
+  points: number;
 }
 
 export interface SegmentLayoutData {
