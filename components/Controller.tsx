@@ -9,11 +9,13 @@ import ControllerButton from "./ControllerButton"
 const Controller = () => {
   const snake = useSnake()
   const [points, setPoints] = useState(0)
+  const [highestPoints, setHighestPoints] = useState(0)
   const highScore = useHighScore()
 
   useEffect(() => {
     const index = snake.listen(() => {
       setPoints(snake.state.current.points)
+      setHighestPoints(highScore.points.current)
     })
     return () => {
       snake.cancelSubscription(index)
@@ -24,8 +26,8 @@ const Controller = () => {
     <View style={styles.container}>
       <View style={styles.pointsContainer}>
         <Text style={styles.pointsText}>POINTS: {points}</Text>
-        {highScore?.points ? (
-          <Text style={styles.pointsText}>HIGH SCORE: {highScore.points}</Text>
+        {highScore.points.current ? (
+          <Text style={styles.pointsText}>HIGH SCORE: {highScore.points.current}</Text>
         ) : null}
       </View>
       <View style={styles.row}>

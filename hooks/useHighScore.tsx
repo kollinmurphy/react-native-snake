@@ -1,8 +1,8 @@
-import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import React, { MutableRefObject, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import * as SecureStore from 'expo-secure-store'
 
 type ContextValue = undefined | {
-  points: number;
+  points: MutableRefObject<number>;
   update: {
     (val: number): void;
   };
@@ -12,25 +12,25 @@ const HighScoreContext = React.createContext<ContextValue>(undefined);
 const KEY = 'high-score-com.canlin.snake'
 
 export const HighScoreProvider = ({ children }: { children: ReactNode }) => {
-  const [highScore, setHighScore] = useState<number>(0)
+  const highScore = useRef(0)
 
   useEffect(() => {
     (async () => {
       const points = await SecureStore.getItemAsync(KEY)
       if (!points) return
       const val = parseInt(points, 10)
-      console.log('old high score', val)
-      setHighScore(val || 0)
+      console.log('loaded high score', val)
+      highScore.current = val || 0
     })()
   }, [])
 
   const handleUpdatePoints = useCallback(async (val) => {
-    if (val > highScore) {
+    if (val > highScore.current) {
       await SecureStore.setItemAsync(KEY, `${val}`)
-      setHighScore(val)
+      highScore.current = val
       console.log('NEW HIGH SCORE', val)
     }
-  }, [highScore])
+  }, [])
 
   return (
     <HighScoreContext.Provider value={{

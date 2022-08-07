@@ -5,6 +5,7 @@ import Palette from "../styles/palette";
 import useSnake from "../hooks/useSnake";
 import { Direction } from "../logic/types";
 import { useCallback } from "react";
+import * as Haptics from 'expo-haptics';
 
 export interface ControllerButtonProps {
   type: Direction;
@@ -15,6 +16,7 @@ const ControllerButton = ({ type } : ControllerButtonProps) => {
 
   const handlePress = useCallback(() => {
     snake.handleDirectionPressed(type)
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
   }, [type])
 
   return (

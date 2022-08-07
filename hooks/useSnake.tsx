@@ -58,8 +58,7 @@ export const SnakeProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     } catch (err) {
-      console.log(err)
-      console.log('LOST')
+      console.log((err as Error).message)
       audio.playLoseSound()
       snake.current = {
         ...snake.current,
